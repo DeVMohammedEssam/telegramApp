@@ -31,6 +31,15 @@ let getStaticDynamicNumberRange=(from,to)=>{
 const generateNumbers=(req,res,err)=>{
 const {from,to}=req.body
 res.json(getStaticDynamicNumberRange(from,to))
+//TODO: 
+// { SAVE TO DB
+//     "staticPart": "201011",
+//     "from": "800000",
+//     "to": "900000",
+//     "count": 100000,
+//     "noFrom":from
+//      "noTo":to
+// }
 //from : 2010118xxxxx
 //to :   2010119xxxxx
 
