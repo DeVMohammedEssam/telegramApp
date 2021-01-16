@@ -64,7 +64,9 @@ console.log("Connection")
     })
    const {token,client}=await authFactory(phoneCallback,codeCallback)
    socket.emit("tokenResponse",{state:true,token})
-
+    //TODO: 
+    //Save to Database Token collection
+    //{token,number}
    console.log(token)
   })
 })
