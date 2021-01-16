@@ -1,8 +1,12 @@
-const router=require('express').Router()
-const {generateNumbers}=require('../controllers/service.controller')
-const { Api } = require('../services/gramjs')
-router.post('/generate-numbers',generateNumbers)
-module.exports=router  
+const router = require("express").Router();
+const {
+  generateNumbers,
+  getGeneratedNumbers,
+} = require("../controllers/service.controller");
+const { Api } = require("../services/gramjs");
+router.post("/generate-numbers", generateNumbers);
+router.get("/generated-numbers", getGeneratedNumbers);
+module.exports = router;
 
 //TODO:
 // filter Api Return shape
@@ -12,4 +16,3 @@ module.exports=router
 // "from": "800000",
 // "to": "900000",
 // "count": 100000
-

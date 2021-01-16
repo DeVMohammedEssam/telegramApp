@@ -1,137 +1,83 @@
-<script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
-    crossorigin="anonymous"></script>
-<script>
-    const socket = io()
-
-    socket.on("sendVerificationMessageEventStatus", (state) => {
-        if (state) {
-            console.log("code was sent")
-            document.getElementById("send_code").disabled = true
-        }
-    })
-    socket.on("tokenResponse", ({ state, token }) => {
-        if (state) {
-            console.log({ token })
-            document.getElementById("token_alert").style.display = "block"
-            document.getElementById("token_alert").innerText = `token ${token}`
-            document.getElementById("verify").disabled = true
-
-        }
-    })
-    const sendPhoneNumber = (e) => {
-        e.preventDefault()
-        let phone = document.getElementById("phone_number").value
-        socket.emit("sendVerificationMessageEvent", phone)
-        return null
-    }
-    const sendVerificationCode = (e) => {
-        e.preventDefault()
-        let code = document.getElementById("phone_code").value
-        socket.emit("codeCallbackEventResponse", code)
-        return null
-    }
-
-    const generateNumbers = (e) => {
-        e.preventDefault();
-        const fromInput = document.getElementById("number_from"),
-            toInput = document.getElementById("number_to"),
-            generateBtn = document.getElementById("generate_numbers"),
-            generate_numbers_loader = document.getElementById("generate_numbers_loader");
-
-        generate_numbers_loader.style.display = "block";
-        generateBtn.setAttribute("disabled", true);
-        console.log(fromInput.value, toInput.value);
-    }
-
-    const fetchFilteringOptions = async () => {
-        try {
-            const response = await fetch("https://jsonplaceholder.typicode.com/todos");
-            const data = await response.json();
-            return data;
-        } catch (e) {
-            console.log(e.message);
-        }
-    }
-    window.onload = async function () {
-        const filterSelectBox = document.getElementById("filtration_select");
-        const options = await fetchFilteringOptions();
-        if (options instanceof Array) {
-            options.forEach(option => {
-                const optionElement = document.createElement("option");
-                optionElement.textContent = option.title;
-                // optionElement.setAttribute("disabled", option.completed);
-                filterSelectBox.append(optionElement);
-            })
-        }
-    }
-</script>
-<h3>Send phone number</h3>
-<form id="form1" onsubmit="sendPhoneNumber(event)" class="card" method="post" action="/api/phone">
-    <div class='card-body'>
-        <div class="form-group">
-            <label for="exampleInputEmail1">Phone number</label>
-            <input onchane="sendPhone(event)" required class="form-control" id="phone_number"
-                aria-describedby="phone_number" name="phone_number">
-        </div>
-        <button id="send_code" type="submit" class="btn btn-primary">Send code</button>
+<div class='row'>
+    <h3>Send phone number</h3>
+    <div class='col-12 col-md-6'>
+        <form id="form1" onsubmit="sendPhoneNumber(event)" class="card" method="post" action="/api/phone">
+            <div class='card-body'>
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Phone number</label>
+                    <input onchane="sendPhone(event)" required class="form-control" id="phone_number"
+                        aria-describedby="phone_number" name="phone_number">
+                </div>
+                <button id="send_code" type="submit" class="btn btn-primary">Send code</button>
+            </div>
+        </form>
     </div>
-</form>
-<br />
-<form id="form2" onsubmit="sendVerificationCode(event)" class="card" method="post" action="/api/phone">
-    <div class='card-body'>
-        <div class="form-group">
-            <label for="exampleInputEmail1">Code</label>
-            <input onchane="sendPhone(event)" required class="form-control" id="phone_code"
-                aria-describedby="phone_code" name="phone_code">
+    <div class='col-12 col-md-6'>
+        <form id="form2" onsubmit="sendVerificationCode(event)" class="card" method="post" action="/api/phone">
+            <div class='card-body'>
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Code</label>
+                    <input onchane="sendPhone(event)" required class="form-control" id="phone_code"
+                        aria-describedby="phone_code" name="phone_code">
+                </div>
+                <button id="verify" type="submit" class="btn btn-primary">Verify</button>
+            </div>
+        </form>
+        <div class="alert alert-success" id="token_alert" style="display:none;overflow-wrap: anywhere" role="alert">
         </div>
-        <button id="verify" type="submit" class="btn btn-primary">Verify</button>
     </div>
-</form>
-<div class="alert alert-success" id="token_alert" style="display:none;overflow-wrap: anywhere" role="alert">
 </div>
 
-<br />
-<br />
-
-<h3>Generate number settings</h3>
-<form id="form3" onsubmit="generateNumbers(event)" class="card" method="post" action="/api/phone">
-    <div class='card-body'>
-        <div class="form-group">
-            <label for="exampleInputEmail1">From</label>
-            <input type="number" min="0" step="1" required class="form-control" id="number_from" aria-describedby="from"
-                name="from">
-        </div>
-        <div class="form-group">
-            <label for="exampleInputEmail1">To</label>
-            <input type="number" min="0" step="1" required class="form-control" id="number_to" aria-describedby="to"
-                name="to">
-        </div>
-        <div class='d-flex align-items-center '>
-            <button id="generate_numbers" type="submit" class="btn btn-secondary mr-4">
-                Generate number
-            </button>
-            <div id="generate_numbers_loader" class="spinner-border" style="display: none;" role="status">
-                <span class="sr-only">Loading...</span>
+<div class="border-bottom my-3"></div>
+<div class='row'>
+    <h3>Generate number settings</h3>
+    <div class='col-12 col-md-6'>
+        <form id="form3" onsubmit="generateNumbers(event)" class="card" method="post" action="/api/phone">
+            <div class='card-body'>
+                <div class="form-group">
+                    <label for="exampleInputEmail1">From</label>
+                    <input type="text" required class="form-control" id="number_from" aria-describedby="from"
+                        name="from">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputEmail1">To</label>
+                    <input type="text" required class="form-control" id="number_to" aria-describedby="to" name="to">
+                </div>
+                <div class='d-flex align-items-center '>
+                    <button id="generate_numbers" type="submit" class="btn btn-info mr-4">
+                        Generate number
+                    </button>
+                    <div id="generate_numbers_loader" class="spinner-border" style="display: none;" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
             </div>
-        </div>
+            <div class='px-3' id="numberGenerationSuccess" style="display: none;">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    New Sequence generated, Please refresh.
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+
+        </form>
+
     </div>
-</form>
 
+    <div class='col-12 col-md-6'>
+        <form id="form4" onsubmit="filterSequence(event)" class="card" method="post" action="/api/phone">
+            <div class='card-body'>
+                <div class="form-group">
+                    <label for="filtration_select">Filtration options</label>
+                    <select id="filtration_select" class="form-control custom-select" name="filtration_select">
 
-<br />
-<br />
-<form id="form4" onsubmit="sendVerificationCode(event)" class="card" method="post" action="/api/phone">
-    <div class='card-body'>
-        <div class="form-group">
-            <label for="filtration_select">Filtration options</label>
-            <select id="filtration_select" class="form-control custom-select" name="filtration_select">
-
-            </select>
-        </div>
-        <button id="verify" type="submit" class="btn btn-primary">Filter</button>
+                    </select>
+                </div>
+                <button id="verify" type="submit" class="btn btn-info">Filter</button>
+            </div>
+        </form>
     </div>
-</form>
+
+
+</div>

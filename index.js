@@ -1,22 +1,30 @@
+require("dotenv").config();
 const express = require("express");
+const exphbs = require("express-handlebars");
+const db = require("./models/db");
+const path = require("path");
+const Token = require("./models/Tokens");
+
+db.configure();
+const hbs = exphbs.create({ extname: ".hbs" });
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-const exphbs = require("express-handlebars");
-const hbs = exphbs.create({ extname: ".hbs" });
-const path = require("path");
 app.engine(".hbs", hbs.engine);
 app.set("view engine", ".hbs");
+
 let http = require("http").Server(app);
+
 const io = require("socket.io")(http, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
   },
 });
-const apiId = 79865;
 
-const apiHash = "d4e5e5a9635854cf8a807297da389d75";
+const apiId = process.env.TELEGRAM_APP_ID;
+const apiHash = process.env.TELEGRAM_API_HASH;
 
 const {
   TelegramClient,
@@ -69,12 +77,18 @@ io.on("connection", (socket) => {
       });
     const { token, client } = await authFactory(phoneCallback, codeCallback);
     socket.emit("tokenResponse", { state: true, token });
+
     //TODO:
     //Save to Database Token collection
     //{token,number}
-    console.log(token);
+    try {
+      const token = await new Token({ number, token }).save();
+    } catch (e) {
+      console.log(e.message);
+    }
   });
 });
+
 app.use("/api/service", service);
 
 app.get("/", (req, res) => {
