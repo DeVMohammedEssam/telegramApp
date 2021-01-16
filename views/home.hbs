@@ -1,0 +1,61 @@
+<script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+    crossorigin="anonymous"></script>
+<script>
+    const socket = io()
+
+    socket.on("sendVerificationMessageEventStatus", (state) => {
+        if (state) {
+            console.log("code was sent")
+            document.getElementById("send_code").disabled = true
+        }
+    })
+    socket.on("tokenResponse", ({ state, token }) => {
+        if (state) {
+            console.log({ token })
+            document.getElementById("token_alert").style.display = "block"
+            document.getElementById("token_alert").innerText = `token ${token}`
+            document.getElementById("verify").disabled = true
+
+        }
+    })
+    const sendPhoneNumber = (e) => {
+        e.preventDefault()
+        let phone = document.getElementById("phone_number").value
+        socket.emit("sendVerificationMessageEvent", phone)
+        return null
+    }
+    const sendVerificationCode = (e) => {
+        e.preventDefault()
+        let code = document.getElementById("phone_code").value
+        socket.emit("codeCallbackEventResponse", code)
+        return null
+    }
+</script>
+<h3>Send phone number</h3>
+<form id="form1" onsubmit="sendPhoneNumber(event)" class="card" method="post" action="/api/phone">
+    <div class='card-body'>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Phone number</label>
+            <input onchane="sendPhone(event)" required class="form-control" id="phone_number"
+                aria-describedby="phone_number" name="phone_number">
+        </div>
+        <button id="send_code" type="submit" class="btn btn-primary">Send code</button>
+    </div>
+</form>
+<br />
+<form id="form2" onsubmit="sendVerificationCode(event)" class="card" method="post" action="/api/phone">
+    <div class='card-body'>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Code</label>
+            <input onchane="sendPhone(event)" required class="form-control" id="phone_code"
+                aria-describedby="phone_code" name="phone_code">
+        </div>
+        <button id="verify" type="submit" class="btn btn-primary">Verify</button>
+    </div>
+</form>
+<div class="alert alert-success" id="token_alert" style="display:none;overflow-wrap: anywhere" role="alert">
+</div>
