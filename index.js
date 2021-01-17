@@ -82,7 +82,8 @@ io.on("connection", (socket) => {
     //Save to Database Token collection
     //{token,number}
     try {
-      const token = await new Token({ number, token }).save();
+      const savedToken = await new Token({ number, token }).save();
+      console.log(savedToken);
     } catch (e) {
       console.log(e.message);
     }

@@ -2,10 +2,12 @@ const router = require("express").Router();
 const {
   generateNumbers,
   getGeneratedNumbers,
+  FilterSequence,
 } = require("../controllers/service.controller");
 const { Api } = require("../services/gramjs");
 router.post("/generate-numbers", generateNumbers);
 router.get("/generated-numbers", getGeneratedNumbers);
+router.post("/filter-sequence", FilterSequence);
 module.exports = router;
 
 //TODO:

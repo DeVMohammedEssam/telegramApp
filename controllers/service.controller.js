@@ -76,7 +76,18 @@ const getGeneratedNumbers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+const FilterSequence = async (req, res) => {
+  try {
+    const { sequenceId } = req.body;
+    if (!sequenceId) res.sendStatus(400);
+
+    res.json({
+      sequenceId,
+    });
+  } catch (error) {}
+};
 module.exports = {
   generateNumbers,
   getGeneratedNumbers,
+  FilterSequence,
 };

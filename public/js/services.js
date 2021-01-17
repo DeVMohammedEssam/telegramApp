@@ -54,6 +54,13 @@ const fetchFilteringOptions = async () => {
 
 const filterSequence = async (e) => {
   e.preventDefault();
-  const selectedSequenceId = document.getElementById("filtration_select").value;
-  console.log(selectedSequenceId);
+  const sequenceId = document.getElementById("filtration_select").value;
+  try {
+    const { data } = await axios.post("/api/service/filter-sequence", {
+      sequenceId,
+    });
+    console.log(data);
+  } catch (error) {
+    alert(error.message);
+  }
 };
