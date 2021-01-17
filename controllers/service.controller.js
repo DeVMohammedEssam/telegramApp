@@ -1,5 +1,11 @@
 const GeneratedNumber = require("../models/Numbers");
-
+const {
+  TelegramClient,
+  tl,
+  utils,
+  LocalStorageSession,
+  Api,
+} = require("../services/gramjs");
 let transformNumber = (number) => {
   //011x -> 3
   let firstXIndex = number.indexOf("x");
@@ -35,6 +41,63 @@ let getStaticDynamicNumberRange = (from, to) => {
     to: _to,
     count: _to - _from,
   };
+};
+
+let filterBulkOfNumbers = async (numbers, token) => {
+  let random = cuid();
+  let _numbers = numbers.map(
+    (number) =>
+      new Api.InputPhoneContact({
+        clientId: random,
+        phone: number,
+        firstName: "Name" + random,
+        lastName: "Last" + random,
+      })
+  );
+  const ImportContacts = tl.requests.contacts.ImportContacts;
+  const filterResult = await client.invoke(
+    new ImportContacts({
+      contacts: [
+        contact1,
+        contact2,
+        contact3,
+        contact5,
+        contact4,
+        contact6,
+        contact7,
+        contact9,
+        contact10,
+        contact8,
+      ],
+    })
+  );
+
+  let result = JSON.parse(
+    JSON.stringify(filterResult).users.map((user) => ({
+      wasOnline: user.status?.wasOnline * 1000,
+      phone: user.phone,
+    }))
+  );
+  return result;
+};
+let filterTelegramNumbers = async (data, tokens, i = 0) => {
+  //   let data={
+  //     "staticPart": "201011",
+  //     "from": "800000",
+  //     "to": "900000",
+  //     "count": 100000,
+  // }
+  let bulkCounter = 0;
+  let numberCounter = Number(data.from);
+  let builkOfNumbers = [];
+  while (Number(data.from) <= Number(data.to) && bulkCounter < 10) {
+    builkCounter++;
+    numberIter++;
+    builkOfNumbers = [`${data.staticPart}+${numberCounter}`];
+  }
+  await filterBulkOfNumbers(builkOfNumbers, tokens[i % tokens.length]);
+  if (builkOfNumbers == 0) return;
+  filterTelegramNumbers({ ...data, from: numberCounter }, tokens, ++i);
 };
 
 const generateNumbers = async (req, res, err) => {
@@ -86,6 +149,7 @@ const FilterSequence = async (req, res) => {
     });
   } catch (error) {}
 };
+
 module.exports = {
   generateNumbers,
   getGeneratedNumbers,
