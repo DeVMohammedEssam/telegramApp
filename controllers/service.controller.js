@@ -1,4 +1,15 @@
 const GeneratedNumber = require("../models/Numbers");
+const Tokens = require("../models/Tokens");
+const EventEmitter = require('events');
+let event=new EventEmitter()
+let wait =require("../utils/timers.js")
+let cuid=require("cuid")
+const { StringSession } = require("../services/gramjs").sessions;
+
+
+const apiId = 79865
+const apiHash = "d4e5e5a9635854cf8a807297da389d75"
+
 const {
   TelegramClient,
   tl,
@@ -43,63 +54,96 @@ let getStaticDynamicNumberRange = (from, to) => {
   };
 };
 
-let filterBulkOfNumbers = async (numbers, token) => {
-  let random = cuid();
-  let _numbers = numbers.map(
-    (number) =>
-      new Api.InputPhoneContact({
-        clientId: random,
-        phone: number,
-        firstName: "Name" + random,
-        lastName: "Last" + random,
-      })
-  );
-  const ImportContacts = tl.requests.contacts.ImportContacts;
-  const filterResult = await client.invoke(
-    new ImportContacts({
-      contacts: [
-        contact1,
-        contact2,
-        contact3,
-        contact5,
-        contact4,
-        contact6,
-        contact7,
-        contact9,
-        contact10,
-        contact8,
-      ],
-    })
-  );
 
-  let result = JSON.parse(
-    JSON.stringify(filterResult).users.map((user) => ({
-      wasOnline: user.status?.wasOnline * 1000,
-      phone: user.phone,
-    }))
-  );
-  return result;
-};
-let filterTelegramNumbers = async (data, tokens, i = 0) => {
-  //   let data={
+let filterBulkOfNumbers=async(numbers,token,hash,source=0)=>{
+  let internalEvent=new EventEmitter()
+  internalEvent.emit("filterBulkOfNumbersStart",new Date())
+  let now=new Date()
+  let intervalCheckSuccess;
+  
+  if(numbers.length==0){
+    return []
+  }
+ 
+
+  let random=cuid()
+  const stringSession = new StringSession(token);
+  let client;
+  try{
+    let result=[]
+    while(result.length==0){
+      console.log("RETURY ",result)
+      result=await Promise.all([ new TelegramClient(stringSession, apiId, apiHash)])
+    }  
+    client=result[0]
+
+    
+  }catch(e){
+    console.log("ERROR ",e)
+  }
+  await client.connect()
+  let _numbers=numbers.map((number)=>
+  new Api.InputPhoneContact({
+            clientId:new Date().getTime(),
+            phone:number,
+            firstName:"Name"+random,
+            lastName:"Last"+random
+        })
+  )
+  //console.log("NUMBERS ",_numbers)
+  const ImportContacts=tl.requests.contacts.ImportContacts
+  //console.log(ImportContacts)
+
+   const filterResult=await client.invoke(new ImportContacts({
+      contacts:_numbers
+   }))
+  let result=JSON.parse(JSON.stringify(filterResult)).users.map((user)=>({id:user.id,wasOnline:user.status?.wasOnline*1000,phone:user.phone}))
+  //console.log(result)
+  internalEvent.emit("filterBulkOfNumbersEnd",new Date())
+  return result
+}
+
+let filterTelegramNumbers=async(data,tokens,i=0,hash)=>{
+
+  // let data={
   //     "staticPart": "201011",
   //     "from": "800000",
   //     "to": "900000",
   //     "count": 100000,
   // }
-  let bulkCounter = 0;
-  let numberCounter = Number(data.from);
-  let builkOfNumbers = [];
-  while (Number(data.from) <= Number(data.to) && bulkCounter < 10) {
-    builkCounter++;
-    numberIter++;
-    builkOfNumbers = [`${data.staticPart}+${numberCounter}`];
-  }
-  await filterBulkOfNumbers(builkOfNumbers, tokens[i % tokens.length]);
-  if (builkOfNumbers == 0) return;
-  filterTelegramNumbers({ ...data, from: numberCounter }, tokens, ++i);
-};
 
+  data.staticPart=data.staticPart.replace("+","")
+  console.log("DATA ",data)
+  if(Number(data.from)>Number(data.to)){
+    return
+  }
+  let bulkCounter=0
+  let numberCounter=Number(data.from)
+  let builkOfNumbers=[]
+  console.log("Number(data.from)<=Number(data.to) ",Number(data.from) ,":",Number(data.to))
+  while(Number(data.from)<=Number(data.to)&&bulkCounter<5){
+      bulkCounter++;
+      numberCounter++;
+    builkOfNumbers.push(`${data.staticPart}${numberCounter}`)
+  }
+  //console.log("TOKEN "+tokens[i%tokens.length])
+  //console.log("builkOfNumbers ",builkOfNumbers)
+  let _tokens=tokens[i%tokens.length]
+ 
+ 
+  let result=await filterBulkOfNumbers(builkOfNumbers,_tokens,hash)
+
+
+  
+  console.log("RESULT ",result)
+  if(builkOfNumbers.length==0)
+    return
+    event.emit("data",{result,hash});
+ // console.log("ITER NUMBER: "+i)
+  //console.log("builkOfNumbers.length: "+builkOfNumbers.length)
+//await wait(0)
+filterTelegramNumbers({...data,from:numberCounter},tokens,++i,hash)
+}
 const generateNumbers = async (req, res, err) => {
   const { from, to } = req.body;
   const data = getStaticDynamicNumberRange(from, to);
@@ -142,8 +186,27 @@ const getGeneratedNumbers = async (req, res) => {
 const FilterSequence = async (req, res) => {
   try {
     const { sequenceId } = req.body;
-    if (!sequenceId) res.sendStatus(400);
+    const numbers=await GeneratedNumber.findOne({_id:sequenceId})
+    //     "staticPart": "201011",
+    //     "from": "800000",
+    //     "to": "900000",
+    //     "count": 100000,
+    //     "noFrom":from
+    //      "noTo":to
+    // }
+    const tokens=await Tokens.find({})
 
+    filterTelegramNumbers(numbers._doc,tokens.map((token)=>token.token),0,cuid())
+    event.on("data",({result})=>{
+      console.log("==================",result)
+      //TODO: 
+      //DATA -> [{ id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }]
+      // Save DB using insertMany
+     // { id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }
+     
+    })
+    if (!sequenceId) res.sendStatus(400);
+    
     res.json({
       sequenceId,
     });
@@ -155,3 +218,5 @@ module.exports = {
   getGeneratedNumbers,
   FilterSequence,
 };
+
+
