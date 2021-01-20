@@ -2,7 +2,7 @@ const GeneratedNumber = require("../models/Numbers");
 const Tokens = require("../models/Tokens");
 const EventEmitter = require('events');
 let event=new EventEmitter()
-let wait =require("../utils/timers.js")
+let {wait} =require("../utils/timers.js")
 let cuid=require("cuid")
 const { StringSession } = require("../services/gramjs").sessions;
 
@@ -70,18 +70,34 @@ let filterBulkOfNumbers=async(numbers,token,hash,source=0)=>{
   const stringSession = new StringSession(token);
   let client;
   try{
-    let result=[]
-    while(result.length==0){
-      console.log("RETURY ",result)
-      result=await Promise.all([ new TelegramClient(stringSession, apiId, apiHash)])
-    }  
-    client=result[0]
+    let result=2
+    let retry=async ()=>{
+      result=await Promise.race([new TelegramClient(stringSession, apiId, apiHash),wait(2)])
+    //  console.log("RETRY" , result)
+      if(result==2){
+       await retry()
+      }
+    }
+    await retry()
+    console.log("AFTER RETRY")
+    client=result
 
     
   }catch(e){
     console.log("ERROR ",e)
   }
-  await client.connect()
+  let retryConnect=async ()=>{
+    
+    let result=await Promise.race([client.connect(),wait(2)])
+  //  console.log("RETRY" , result)
+  console.log("RETURY REREYCONNEXT")
+  console.log(result)
+    if(result==2){
+     await retryConnect()
+    }
+  }
+  await retryConnect()
+  console.log("AFTER RETRY CONNECT")
   let _numbers=numbers.map((number)=>
   new Api.InputPhoneContact({
             clientId:new Date().getTime(),
@@ -100,6 +116,7 @@ let filterBulkOfNumbers=async(numbers,token,hash,source=0)=>{
   let result=JSON.parse(JSON.stringify(filterResult)).users.map((user)=>({id:user.id,wasOnline:user.status?.wasOnline*1000,phone:user.phone}))
   //console.log(result)
   internalEvent.emit("filterBulkOfNumbersEnd",new Date())
+  client.disconnect();
   return result
 }
 
@@ -130,8 +147,9 @@ let filterTelegramNumbers=async(data,tokens,i=0,hash)=>{
   //console.log("builkOfNumbers ",builkOfNumbers)
   let _tokens=tokens[i%tokens.length]
  
- 
+  
   let result=await filterBulkOfNumbers(builkOfNumbers,_tokens,hash)
+
 
 
   

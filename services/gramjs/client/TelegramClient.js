@@ -42,7 +42,9 @@ class TelegramClient {
         appVersion: null,
         langCode: 'en',
         systemLangCode: 'en',
+        //baseLogger: 'gramjs',
         baseLogger: 'gramjs',
+
         useWSS: false,
     }
 
