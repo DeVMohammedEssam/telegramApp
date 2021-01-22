@@ -5,7 +5,7 @@ const EventEmitter = require("events");
 let { wait } = require("../utils/timers.js");
 let cuid = require("cuid");
 const { StringSession } = require("../services/gramjs").sessions;
-
+let event = EventEmitter;
 const apiId = 79865;
 const apiHash = "d4e5e5a9635854cf8a807297da389d75";
 
