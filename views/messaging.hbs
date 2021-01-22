@@ -1,0 +1,21 @@
+<form action='/api/service/message' method="POST">
+    <textarea class="form-control" id="text" name="text" rows="8" placeholder="message.."></textarea>
+
+
+    <div class='form-group mt-3'>
+        <h6>Time Filter</h6>
+
+        <select class="form-control" name="timestamp" id="timestamp">
+            <option value="60">1 minute ago</option>
+            <option value="3600">1 hour ago</option>
+            <option value="86400">1 day ago</option>
+            <option value="172800">2 day ago</option>
+            <option value="259200">3 day ago</option>
+            <option value="604800">1 week ago</option>
+            <option value="1209600">2 weeks ago</option>
+            <option value="2419200">1 month ago</option>
+        </select>
+    </div>
+
+    <button class="btn btn-info">Send</button>
+</form>

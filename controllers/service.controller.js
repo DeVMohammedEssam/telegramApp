@@ -74,7 +74,7 @@ let filterBulkOfNumbers = async (numbers, token) => {
 
   let result = JSON.parse(
     JSON.stringify(filterResult).users.map((user) => ({
-      wasOnline: user.status?.wasOnline * 1000,
+      wasOnline: user.status && user.status.wasOnline * 1000,
       phone: user.phone,
     }))
   );
@@ -118,17 +118,6 @@ const generateNumbers = async (req, res, err) => {
     ...data,
   }).save();
   res.json({ number: newNumber });
-  //TODO:
-  // { SAVE TO DB
-  //     "staticPart": "201011",
-  //     "from": "800000",
-  //     "to": "900000",
-  //     "count": 100000,
-  //     "noFrom":from
-  //      "noTo":to
-  // }
-  //from : 2010118xxxxx
-  //to :   2010119xxxxx
 };
 
 const getGeneratedNumbers = async (req, res) => {
@@ -150,8 +139,15 @@ const FilterSequence = async (req, res) => {
   } catch (error) {}
 };
 
+const sendMessage = async (req, res) => {
+  try {
+    const { text, timestamp } = req.body;
+    console.log(text, timestamp);
+  } catch (error) {}
+};
 module.exports = {
   generateNumbers,
   getGeneratedNumbers,
   FilterSequence,
+  sendMessage,
 };

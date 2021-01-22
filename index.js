@@ -6,7 +6,10 @@ const path = require("path");
 const Token = require("./models/Tokens");
 
 db.configure();
-const hbs = exphbs.create({ extname: ".hbs" });
+const hbs = exphbs.create({
+  extname: ".hbs",
+  partialsDir: path.join(__dirname, "views", "partials"),
+});
 
 const app = express();
 app.use(express.json());
@@ -94,6 +97,9 @@ app.use("/api/service", service);
 
 app.get("/", (req, res) => {
   res.render("home");
+});
+app.get("/messaging", (req, res) => {
+  res.render("messaging");
 });
 
 // app.post("/api/phone", (req, res) => {
