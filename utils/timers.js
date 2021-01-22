@@ -1,5 +1,5 @@
- const wait=(seconds)=>new Promise((resolve,reject)=>{
-    setTimeout(resolve, seconds*1000, seconds);
+ const wait=(mseconds)=>new Promise((resolve,reject)=>{
+    setTimeout(resolve, mseconds, mseconds);
 })
 module.exports={
     wait

@@ -16,14 +16,14 @@ services:
       - mongo-keys:/mongo-conf
     command: 'bash -c "openssl rand -base64 741 > /mongo-conf/mongodb-keyfile; chmod 600 /mongo-conf/mongodb-keyfile; chown 999 /mongo-conf/mongodb-keyfile"'
 
-  mongo1:
-    hostname: mongo1
+  mongo1_:
+    hostname: mongo1_
     image: mongo
     restart: always
     expose:
-      - 27017
+      - 27050
     ports:
-      - 27017:27017
+      - 27050:27017
     command: ["--auth", "--keyFile", "/opt/keyfile/mongodb-keyfile","--replSet",  "rs0", "--bind_ip_all"]
     depends_on:
       - mongo-keys
@@ -42,14 +42,14 @@ services:
   # db.createUser({user: "cluster_admin",pwd: "password",roles: ["userAdminAnyDatabase", "dbAdminAnyDatabase", "readWriteAnyDatabase"]});
   # db.auth("cluster_admin", "password");
   # add 127.0.0.1 mongo1 mongo2 mongo3 --> to hosts file
-  mongo2:
-    hostname: mongo2
+  mongo2_:
+    hostname: mongo2_
     image: mongo
     restart: always
     expose:
-      - 27017
+      - 27051
     ports:
-      - 27018:27017
+      - 27051:27017
     command: ["--auth", "--keyFile", "/opt/keyfile/mongodb-keyfile","--replSet",  "rs0", "--bind_ip_all"]
     depends_on:
       - mongo-keys
@@ -59,14 +59,14 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
-  mongo3:
-    hostname: mongo3
+  mongo3_:
+    hostname: mongo3_
     image: mongo
     restart: always
     expose:
-      - 27017
+      - 27052
     ports:
-      - 27019:27017
+      - 27052:27017
     command: ["--auth", "--keyFile", "/opt/keyfile/mongodb-keyfile","--replSet",  "rs0", "--bind_ip_all"]
     depends_on:
       - mongo-keys

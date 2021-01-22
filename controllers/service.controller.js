@@ -1,9 +1,9 @@
 const GeneratedNumber = require("../models/Numbers");
 const Tokens = require("../models/Tokens");
-const EventEmitter = require("events");
-let event = new EventEmitter();
-let { wait } = require("../utils/timers.js");
-let cuid = require("cuid");
+const EventEmitter = require('events');
+
+let {wait} =require("../utils/timers.js")
+let cuid=require("cuid")
 const { StringSession } = require("../services/gramjs").sessions;
 
 const apiId = 79865;
@@ -66,16 +66,13 @@ let filterBulkOfNumbers = async (numbers, token, hash, source = 0) => {
   let random = cuid();
   const stringSession = new StringSession(token);
   let client;
-  try {
-    let result = 2;
-    let retry = async () => {
-      result = await Promise.race([
-        new TelegramClient(stringSession, apiId, apiHash),
-        wait(2),
-      ]);
-      //  console.log("RETRY" , result)
-      if (result == 2) {
-        await retry();
+  try{
+    let result=2
+    let retry=async ()=>{
+      result=await Promise.race([new TelegramClient(stringSession, apiId, apiHash),wait(2)])
+    //  console.log("RETRY" , result)
+      if(result==2){
+       await retry()
       }
     };
     await retry();
@@ -84,13 +81,14 @@ let filterBulkOfNumbers = async (numbers, token, hash, source = 0) => {
   } catch (e) {
     console.log("ERROR ", e);
   }
-  let retryConnect = async () => {
-    let result = await Promise.race([client.connect(), wait(2)]);
-    //  console.log("RETRY" , result)
-    console.log("RETURY REREYCONNEXT");
-    console.log(result);
-    if (result == 2) {
-      await retryConnect();
+  let retryConnect=async ()=>{
+    
+    let result=await Promise.race([client.connect(),wait(2)])
+  //  console.log("RETRY" , result)
+  console.log("RETURY REREYCONNEXT")
+  console.log(result)
+    if(result==2){
+     await retryConnect()
     }
   };
   await retryConnect();
@@ -124,7 +122,8 @@ let filterBulkOfNumbers = async (numbers, token, hash, source = 0) => {
   return result;
 };
 
-let filterTelegramNumbers = async (data, tokens, i = 0, hash) => {
+let filterTelegramNumbers=async(data,tokens,i=0,hash)=>{
+
   // let data={
   //     "staticPart": "201011",
   //     "from": "800000",
@@ -137,19 +136,14 @@ let filterTelegramNumbers = async (data, tokens, i = 0, hash) => {
   if (Number(data.from) > Number(data.to)) {
     return;
   }
-  let bulkCounter = 0;
-  let numberCounter = Number(data.from);
-  let builkOfNumbers = [];
-  console.log(
-    "Number(data.from)<=Number(data.to) ",
-    Number(data.from),
-    ":",
-    Number(data.to)
-  );
-  while (Number(data.from) <= Number(data.to) && bulkCounter < 5) {
-    bulkCounter++;
-    numberCounter++;
-    builkOfNumbers.push(`${data.staticPart}${numberCounter}`);
+  let bulkCounter=0
+  let numberCounter=Number(data.from)
+  let builkOfNumbers=[]
+  console.log("Number(data.from)<=Number(data.to) ",Number(data.from) ,":",Number(data.to))
+  while(Number(data.from)<=Number(data.to)&&bulkCounter<5){
+      bulkCounter++;
+      numberCounter++;
+    builkOfNumbers.push(`${data.staticPart}${numberCounter}`)
   }
   //console.log("TOKEN "+tokens[i%tokens.length])
   //console.log("builkOfNumbers ",builkOfNumbers)
@@ -157,14 +151,17 @@ let filterTelegramNumbers = async (data, tokens, i = 0, hash) => {
 
   let result = await filterBulkOfNumbers(builkOfNumbers, _tokens, hash);
 
-  console.log("RESULT ", result);
-  if (builkOfNumbers.length == 0) return;
-  event.emit("data", { result, hash });
-  // console.log("ITER NUMBER: "+i)
+
+  
+  console.log("RESULT ",result)
+  if(builkOfNumbers.length==0)
+    return
+    event.emit("data",{result,hash});
+ // console.log("ITER NUMBER: "+i)
   //console.log("builkOfNumbers.length: "+builkOfNumbers.length)
-  //await wait(0)
-  filterTelegramNumbers({ ...data, from: numberCounter }, tokens, ++i, hash);
-};
+//await wait(0)
+filterTelegramNumbers({...data,from:numberCounter},tokens,++i,hash)
+}
 const generateNumbers = async (req, res, err) => {
   const { from, to } = req.body;
   const data = getStaticDynamicNumberRange(from, to);
@@ -206,23 +203,20 @@ const FilterSequence = async (req, res) => {
     // }
     const tokens = await Tokens.find({});
 
-    filterTelegramNumbers(
-      numbers._doc,
-      tokens.map((token) => token.token),
-      0,
-      cuid()
-    );
-    event.on("data", ({ result }) => {
-      console.log("==================", result);
-      //TODO:
+    filterTelegramNumbers(numbers._doc,tokens.map((token)=>token.token),0,cuid())
+    event.on("data",({result})=>{
+      console.log("==================",result)
+      //TODO: 
       //DATA -> [{ id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }]
       // Save DB using insertMany
-      // { id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }
-    });
+     // { id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }
+     
+    })
     if (!sequenceId) res.sendStatus(400);
 
     res.json({
       sequenceId,
+      totalTelegramUsers
     });
   } catch (error) {}
 };
