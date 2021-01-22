@@ -5,7 +5,7 @@ const EventEmitter = require('events');
 let {wait} =require("../utils/timers.js")
 let cuid=require("cuid")
 const { StringSession } = require("../services/gramjs").sessions;
-
+let event=EventEmitter
 const apiId = 79865;
 const apiHash = "d4e5e5a9635854cf8a807297da389d75";
 
@@ -156,7 +156,7 @@ let filterTelegramNumbers=async(data,tokens,i=0,hash)=>{
   console.log("RESULT ",result)
   if(builkOfNumbers.length==0)
     return
-    event.emit("data",{result,hash});
+  event.emit("data",{result,hash});
  // console.log("ITER NUMBER: "+i)
   //console.log("builkOfNumbers.length: "+builkOfNumbers.length)
 //await wait(0)
