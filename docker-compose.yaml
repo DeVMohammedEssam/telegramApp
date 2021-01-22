@@ -1,0 +1,83 @@
+version: "3.8"
+
+services:
+
+  telegram-app:
+    build: .
+    ports:
+      - "9000:9000"
+    environment:
+      MONGO_URI: mongodb://root:root@localhost:27017/telegramApp?authSource=admin&readPreference=primary&ssl=false
+      TELEGRAM_APP_ID:  ${TELEGRAM_APP_ID}
+      TELEGRAM_API_HASH: ${TELEGRAM_API_HASH}
+  mongo-keys:
+    image: depop/openssl-bats
+    volumes:
+      - mongo-keys:/mongo-conf
+    command: 'bash -c "openssl rand -base64 741 > /mongo-conf/mongodb-keyfile; chmod 600 /mongo-conf/mongodb-keyfile; chown 999 /mongo-conf/mongodb-keyfile"'
+
+  mongo1:
+    hostname: mongo1
+    image: mongo
+    restart: always
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    command: ["--auth", "--keyFile", "/opt/keyfile/mongodb-keyfile","--replSet",  "rs0", "--bind_ip_all"]
+    depends_on:
+      - mongo-keys
+    volumes:
+      - mongo-keys:/opt/keyfile
+      - mongo-data-0:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+  # docker-compose exec mongo1 mongo -u "root" -p "root"
+  # rs.initiate({"_id" : "rs0","members" : [{"_id" : 0,"host" : "mongo1:27017"},{"_id" : 1,"host" : "mongo2:27017"},{"_id" : 2,"host" : "mongo3:27017"}]});
+  # conf = rs.config();
+  # conf.members[0].priority = 2;
+  # rs.reconfig(conf);
+  # use admin;
+  # db.createUser({user: "cluster_admin",pwd: "password",roles: ["userAdminAnyDatabase", "dbAdminAnyDatabase", "readWriteAnyDatabase"]});
+  # db.auth("cluster_admin", "password");
+  # add 127.0.0.1 mongo1 mongo2 mongo3 --> to hosts file
+  mongo2:
+    hostname: mongo2
+    image: mongo
+    restart: always
+    expose:
+      - 27017
+    ports:
+      - 27018:27017
+    command: ["--auth", "--keyFile", "/opt/keyfile/mongodb-keyfile","--replSet",  "rs0", "--bind_ip_all"]
+    depends_on:
+      - mongo-keys
+    volumes:
+      - mongo-keys:/opt/keyfile
+      - mongo-data-1:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+  mongo3:
+    hostname: mongo3
+    image: mongo
+    restart: always
+    expose:
+      - 27017
+    ports:
+      - 27019:27017
+    command: ["--auth", "--keyFile", "/opt/keyfile/mongodb-keyfile","--replSet",  "rs0", "--bind_ip_all"]
+    depends_on:
+      - mongo-keys
+    volumes:
+      - mongo-keys:/opt/keyfile
+      - mongo-data-2:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+volumes:
+  mongo-keys:
+  mongo-data-0:
+  mongo-data-1:
+  mongo-data-2:

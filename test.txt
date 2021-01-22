@@ -1,0 +1,61 @@
+RETRY TelegramClient {
+  apiId: 79865,
+  apiHash: 'd4e5e5a9635854cf8a807297da389d75',
+  _useIPV6: false,
+  _entityCache: Set(0) {},
+  _log: Logger {
+    isBrowser: undefined,
+    colors: {
+      start: '\x1B[2m',
+      warn: '\x1B[35m',
+      info: '\x1B[33m',
+      debug: '\x1B[36m',
+      error: '\x1B[31m',
+      end: '\x1B[0m'
+    },
+    messageFormat: '[%t] [%l] - [%m]'
+  },
+  floodSleepLimit: 60,
+  _eventBuilders: [],
+  _phoneCodeHash: {},
+  session: StringSession {
+    _serverAddress: '149.154.167.92',
+    _dcId: 4,
+    _port: 443,
+    _takeoutId: null,
+    _entities: Set(0) {},
+    _updateStates: {},
+    _key: <Buffer 8a 91 53 c9 ea 3b 82 06 cf dc 7d 55 c5 a8 91 1f 55 ee b5 95 93 35 25 a4 23 b8 ed 2b ae 03 72 fa 2a 3c c7 fb d0 88 a0 5a ff 35 e1 1e cb 56 60 e1 0f bb ... 206 more bytes>
+  },
+  _requestRetries: 5,
+  _connectionRetries: Infinity,
+  _retryDelay: 1000,
+  _proxy: null,
+  _timeout: 10,
+  _autoReconnect: true,
+  _connection: [class ConnectionTCPFull extends Connection],
+  _floodWaitedRequests: {},
+  _initWith: [Function (anonymous)],
+  _args: {
+    connection: [class ConnectionTCPFull extends Connection],
+    useIPV6: false,
+    proxy: null,
+    timeout: 10,
+    requestRetries: 5,
+    connectionRetries: Infinity,
+    retryDelay: 1000,
+    autoReconnect: true,
+    sequentialUpdates: false,
+    floodSleepLimit: 60,
+    deviceModel: null,
+    systemVersion: null,
+    appVersion: null,
+    langCode: 'en',
+    systemLangCode: 'en',
+    baseLogger: 'gramjs',
+    useWSS: false
+  },
+  _config: null,
+  phoneCodeHashes: [],
+  _borrowedSenderPromises: {}
+}
