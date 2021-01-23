@@ -71,7 +71,16 @@ const onFilterChange = async (e) => {
     const { data } = await axios.get(
       `/api/service/get-filter-count?timestamp=${selectedValue}`
     );
-    console.log(data.count);
+    document.getElementById("filter-user-count").textContent = data.count;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+const fetchAnalysis = async () => {
+  try {
+    const { data } = await axios.get("/api/service/get-analysis");
+    return data;
   } catch (error) {
     console.log(error.message);
   }

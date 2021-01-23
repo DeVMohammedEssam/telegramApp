@@ -1,9 +1,9 @@
 <form action='/api/service/message' method="POST">
+
     <textarea class="form-control" id="text" name="text" rows="8" placeholder="message.."></textarea>
 
-
     <div class='form-group mt-3'>
-        <h6>Time Filter</h6>
+        <h6>Time Filter <span class="badge badge-info" id="filter-user-count"></span></h6>
 
         <select class="form-control" name="timestamp" id="timestamp" onchange="onFilterChange(event)">
             <option value="0">Send To All</option>

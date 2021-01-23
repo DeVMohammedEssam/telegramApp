@@ -156,10 +156,31 @@ const getFilterCount = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+const getAnalysis = async (req, res) => {
+  try {
+    const tokens = await Tokens.countDocuments();
+    const usedNumbers = await GeneratedNumber.countDocuments({ isUsed: true });
+    const unUsedNumbers = await GeneratedNumber.countDocuments({
+      isUsed: false,
+    });
+    const users = await User.countDocuments();
+    res.json({
+      tokens,
+      usedNumbers,
+      unUsedNumbers,
+      users,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.json({ error });
+  }
+};
 module.exports = {
   generateNumbers,
   getGeneratedNumbers,
   FilterSequence,
   sendMessage,
   getFilterCount,
+  getAnalysis,
 };
