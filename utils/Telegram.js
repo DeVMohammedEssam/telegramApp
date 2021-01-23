@@ -111,7 +111,7 @@ class Telegram extends EventEmitter {
 
     console.log("RESULT ", result);
     if (builkOfNumbers.length == 0) {
-      this.emit("Finished");
+      this.emit("finished");
       return;
     }
     this.emit("data", { result, hash });
