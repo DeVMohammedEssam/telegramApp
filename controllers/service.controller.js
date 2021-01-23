@@ -9,13 +9,7 @@ let event = EventEmitter;
 const apiId = 79865;
 const apiHash = "d4e5e5a9635854cf8a807297da389d75";
 
-const {
-  TelegramClient,
-  tl,
-  utils,
-  LocalStorageSession,
-  Api,
-} = require("../services/gramjs");
+const { TelegramClient, tl, utils, LocalStorageSession, Api } = require("../services/gramjs");
 const User = require("../models/User");
 const { Telegram } = require("../utils/Telegram");
 let transformNumber = (number) => {
@@ -24,10 +18,7 @@ let transformNumber = (number) => {
   //011x-> 011
   let numbersBeforeX = number.slice(0, firstXIndex);
   //011x-> x1
-  let firstNumber = numbersBeforeX.slice(
-    numbersBeforeX.length - 1,
-    numbersBeforeX.length
-  );
+  let firstNumber = numbersBeforeX.slice(numbersBeforeX.length - 1, numbersBeforeX.length);
   //011x-> x
   let xChars = number.slice(firstXIndex, number.length);
   //011x-> 10
@@ -63,9 +54,7 @@ const generateNumbers = async (req, res, err) => {
     numberTo: to,
   });
   if (isDuplicate) {
-    return res
-      .status(400)
-      .json({ message: "this sequence has already been generated." });
+    return res.status(400).json({ message: "this sequence has already been generated." });
   }
   const newNumber = await new GeneratedNumber({
     numberFrom: from,
@@ -95,33 +84,28 @@ const FilterSequence = async (req, res) => {
     //      "noTo":to
     // }
     const tokens = await Tokens.find({});
-
-    filterTelegramNumbers(
-      numbers._doc,
-      tokens.map((token) => token.token),
-      0,
-      cuid()
-    );
-
     const telegram = new Telegram();
+
     telegram.filterTelegramNumbers(
       numbers._doc,
       tokens.map((token) => token.token),
       0,
       cuid()
     );
+
     telegram.on("data", async ({ result }) => {
       try {
-        const users = results.map(({ id, wasOnline, phone }) => ({
+        const users = result.map(({ id, wasOnline, phone }) => ({
           telegramId: id,
           wasOnline,
           phone,
         }));
         const insertedUsers = await new User.insertMany(users);
         console.log("inserted users", insertedUsers);
-        res.sendStatus(200);
+        return res.sendStatus(200);
       } catch (error) {
-        res.json({ error: error.message });
+        console.log(error);
+        return res.json({ error: error.message });
       }
       //   //TODO:
       //   //DATA -> [{ id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }]
@@ -131,12 +115,13 @@ const FilterSequence = async (req, res) => {
 
     if (!sequenceId) res.sendStatus(400);
 
-    res.json({
+    return res.json({
       sequenceId,
       totalTelegramUsers,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.log(error);
+    return res.status(500).json({ error: error.message });
   }
 };
 
