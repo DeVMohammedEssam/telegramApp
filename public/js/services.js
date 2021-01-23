@@ -62,11 +62,8 @@ const filterSequence = async (e) => {
     filterBtn.disabled = true;
     const { data } = await axios.post("/api/service/filter-sequence", {
       sequenceId,
+      socketId: localStorage.socketId,
     });
-
-    filterBtn.textContent = "Filter";
-    filterBtn.disabled = false;
-    console.log(data);
   } catch (error) {
     alert(error.message);
   }

@@ -1,7 +1,6 @@
 const GeneratedNumber = require("../models/Numbers");
 const Tokens = require("../models/Tokens");
 const EventEmitter = require("events");
-
 let { wait } = require("../utils/timers.js");
 let cuid = require("cuid");
 const { StringSession } = require("../services/gramjs").sessions;
@@ -81,14 +80,10 @@ const getGeneratedNumbers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-const FilterSequence = async (req, res) => {
+const FilterSequence = (io) => async (req, res) => {
   try {
-    const { sequenceId } = req.body;
-    const numbers = await GeneratedNumber.findOneAndUpdate(
-      { _id: sequenceId },
-      { isUsed: true },
-      { new: false }
-    );
+    const { sequenceId, socketId } = req.body;
+    const numbers = await GeneratedNumber.findById(sequenceId);
     //     "staticPart": "201011",
     //     "from": "800000",
     //     "to": "900000",
@@ -105,8 +100,11 @@ const FilterSequence = async (req, res) => {
       0,
       cuid()
     );
-
+    let usersCounter = 0;
     telegram.on("data", async ({ result }) => {
+      // console.log(result);
+      usersCounter += result.length;
+      io.to(socketId).emit("filteringSequence", usersCounter);
       const users = result.map(({ id, wasOnline, phone }) => ({
         telegramId: id,
         wasOnline,
@@ -117,6 +115,11 @@ const FilterSequence = async (req, res) => {
       return res.json({ userCount: insertedUsers.length });
     });
 
+    telegram.on("finished", async () => {
+      console.log("finisshhhhhhhheeddd");
+      await GeneratedNumber.updateOne({ _id: socketId }, { isUsed: true });
+      io.to(socketId).emit("filtrationFinished");
+    });
     /*   if (!sequenceId) res.sendStatus(400);
 
     return res.json({

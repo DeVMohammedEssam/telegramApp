@@ -4,7 +4,6 @@ const exphbs = require("express-handlebars");
 const db = require("./models/db");
 const path = require("path");
 const Token = require("./models/Tokens");
-const cuid = require("cuid");
 db.configure();
 const hbs = exphbs.create({
   extname: ".hbs",
@@ -29,7 +28,13 @@ const io = require("socket.io")(http, {
 const apiId = process.env.TELEGRAM_APP_ID;
 const apiHash = process.env.TELEGRAM_API_HASH;
 
-const { TelegramClient, tl, utils, LocalStorageSession, Api } = require("./services/gramjs");
+const {
+  TelegramClient,
+  tl,
+  utils,
+  LocalStorageSession,
+  Api,
+} = require("./services/gramjs");
 const { StringSession } = require("./services/gramjs").sessions;
 const service = require("./routes/service.router");
 
@@ -55,11 +60,12 @@ const authFactory = async (phoneCallback, codeCallback) => {
   };
 };
 
-io.on("connection", (socket) => {
-  console.log("Connection");
-  let id = cuid();
-  socket.join();
-  socket.emit("joined", id);
+io.sockets.on("connection", (socket) => {
+  socket.on("join", function (room) {
+    console.log("joineeeeddd");
+    socket.join(room);
+  });
+
   socket.on("sendVerificationMessageEvent", async (number) => {
     console.log(`sendVerificationMessageEvent ${number}`);
     const phoneCallback = () =>
@@ -87,7 +93,7 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use("/api/service", service);
+app.use("/api/service", service(io));
 
 app.get("/", (req, res) => {
   res.render("home");

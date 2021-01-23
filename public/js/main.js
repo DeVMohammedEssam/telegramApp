@@ -17,7 +17,7 @@ window.onload = async function () {
         const optionElement = document.createElement("option");
         optionElement.textContent = `${option.numberFrom} => ${option.numberTo}`;
         optionElement.value = option._id;
-        optionElement.disabled = option.isUsed;
+        // optionElement.disabled = option.isUsed;
         filterSelectBox.append(optionElement);
       });
     }
