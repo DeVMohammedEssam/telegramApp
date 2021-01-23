@@ -5,13 +5,7 @@ const apiId = 79865;
 const apiHash = "d4e5e5a9635854cf8a807297da389d75";
 let { wait } = require("./timers.js");
 
-const {
-  TelegramClient,
-  tl,
-  utils,
-  LocalStorageSession,
-  Api,
-} = require("../services/gramjs");
+const { TelegramClient, tl, utils, LocalStorageSession, Api } = require("../services/gramjs");
 class Telegram extends EventEmitter {
   filterBulkOfNumbers = async (numbers, token, hash, source = 0) => {
     let internalEvent = new EventEmitter();
@@ -31,10 +25,7 @@ class Telegram extends EventEmitter {
     try {
       let result = 1000;
       let retry = async () => {
-        result = await Promise.race([
-          new TelegramClient(stringSession, apiId, apiHash),
-          wait(1000),
-        ]);
+        result = await Promise.race([new TelegramClient(stringSession, apiId, apiHash), wait(1000)]);
         //  console.log("RETRY" , result)
         if (result == 1000) {
           await retry();
@@ -106,12 +97,7 @@ class Telegram extends EventEmitter {
     let bulkCounter = 0;
     let numberCounter = Number(data.from);
     let builkOfNumbers = [];
-    console.log(
-      "Number(data.from)<=Number(data.to) ",
-      Number(data.from),
-      ":",
-      Number(data.to)
-    );
+    console.log("Number(data.from)<=Number(data.to) ", Number(data.from), ":", Number(data.to));
     while (Number(data.from) <= Number(data.to) && bulkCounter < 5) {
       bulkCounter++;
       numberCounter++;
@@ -124,17 +110,15 @@ class Telegram extends EventEmitter {
     let result = await this.filterBulkOfNumbers(builkOfNumbers, _tokens, hash);
 
     console.log("RESULT ", result);
-    if (builkOfNumbers.length == 0) return;
+    if (builkOfNumbers.length == 0) {
+      this.emit("Finished");
+      return;
+    }
     this.emit("data", { result, hash });
     // console.log("ITER NUMBER: "+i)
     //console.log("builkOfNumbers.length: "+builkOfNumbers.length)
     //await wait(0)
-    this.filterTelegramNumbers(
-      { ...data, from: numberCounter },
-      tokens,
-      ++i,
-      hash
-    );
+    this.filterTelegramNumbers({ ...data, from: numberCounter }, tokens, ++i, hash);
   };
 }
 module.exports = {
