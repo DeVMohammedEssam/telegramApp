@@ -64,3 +64,15 @@ const filterSequence = async (e) => {
     alert(error.message);
   }
 };
+
+const onFilterChange = async (e) => {
+  const selectedValue = e.target.value;
+  try {
+    const { data } = await axios.get(
+      `/api/service/get-filter-count?timestamp=${selectedValue}`
+    );
+    console.log(data.count);
+  } catch (error) {
+    console.log(error.message);
+  }
+};

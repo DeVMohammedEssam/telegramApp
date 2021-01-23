@@ -16,6 +16,7 @@ const {
   LocalStorageSession,
   Api,
 } = require("../services/gramjs");
+const User = require("../models/User");
 let transformNumber = (number) => {
   //011x -> 3
   let firstXIndex = number.indexOf("x");
@@ -212,9 +213,22 @@ const FilterSequence = async (req, res) => {
       0,
       cuid()
     );
-    event.on("data", ({ result }) => {
-      console.log("==================", result);
-      //TODO:
+    event.on("data", async ({ results }) => {
+      console.log(results);
+      try {
+        const users = results.map(({ id, wasOnline, phone }) => ({
+          telegramId: id,
+          wasOnline,
+          phone,
+        }));
+        const insertedUsers = await new User.insertMany(users);
+        console.log("inserted users", insertedUsers);
+        res.sendStatus(200);
+      } catch (error) {
+        res.json({ error: error.message });
+      }
+
+      //:TODO:
       //DATA -> [{ id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }]
       // Save DB using insertMany
       // { id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }
@@ -225,7 +239,9 @@ const FilterSequence = async (req, res) => {
       sequenceId,
       totalTelegramUsers,
     });
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 const sendMessage = async (req, res) => {
@@ -234,9 +250,20 @@ const sendMessage = async (req, res) => {
     console.log(text, timestamp);
   } catch (error) {}
 };
+
+const getFilterCount = async (req, res) => {
+  try {
+    const { timestamp } = req.query;
+    const count = await User.getTimeFilterCount(timestamp);
+    res.json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 module.exports = {
   generateNumbers,
   getGeneratedNumbers,
   FilterSequence,
   sendMessage,
+  getFilterCount,
 };

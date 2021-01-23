@@ -5,7 +5,8 @@
     <div class='form-group mt-3'>
         <h6>Time Filter</h6>
 
-        <select class="form-control" name="timestamp" id="timestamp">
+        <select class="form-control" name="timestamp" id="timestamp" onchange="onFilterChange(event)">
+            <option value="0">Send To All</option>
             <option value="60">1 minute ago</option>
             <option value="3600">1 hour ago</option>
             <option value="86400">1 day ago</option>
