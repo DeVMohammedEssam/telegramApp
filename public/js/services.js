@@ -55,6 +55,7 @@ const fetchFilteringOptions = async () => {
 const filterSequence = async (e) => {
   e.preventDefault();
   const sequenceId = document.getElementById("filtration_select").value;
+  if (!sequenceId) return;
   try {
     const filterBtn = document.getElementById("filter-button");
     filterBtn.textContent = "Filtering...";
@@ -78,6 +79,15 @@ const onFilterChange = async (e) => {
       `/api/service/get-filter-count?timestamp=${selectedValue}`
     );
     document.getElementById("filter-user-count").textContent = data.count;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+const getRangeNumbersCount = async (id) => {
+  try {
+    const { data } = await axios.get(`/api/service/sequence-count?id=${id}`);
+    return data;
   } catch (error) {
     console.log(error.message);
   }

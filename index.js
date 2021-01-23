@@ -63,6 +63,7 @@ const authFactory = async (phoneCallback, codeCallback) => {
 
 io.on("connection", (socket) => {
   console.log("Connection");
+
   socket.on("sendVerificationMessageEvent", async (number) => {
     console.log(`sendVerificationMessageEvent ${number}`);
     const phoneCallback = () =>
@@ -81,9 +82,6 @@ io.on("connection", (socket) => {
     const { token, client } = await authFactory(phoneCallback, codeCallback);
     socket.emit("tokenResponse", { state: true, token });
 
-    //TODO:
-    //Save to Database Token collection
-    //{token,number}
     try {
       const savedToken = await new Token({ number, token }).save();
       console.log(savedToken);
@@ -119,3 +117,5 @@ app.get("/messaging", (req, res) => {
 // });
 
 http.listen(9000, () => console.log("running on port 9000"));
+
+module.exports = { io };

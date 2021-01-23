@@ -70,8 +70,20 @@
             <div class='card-body'>
                 <div class="form-group">
                     <label for="filtration_select">Filtration options</label>
+
                     <select id="filtration_select" class="form-control custom-select" name="filtration_select">
+                        <option value=''>Select sequence</option>
                     </select>
+                </div>
+                <div class='d-flex justify-content-between align-items-center'>
+                    <h6 class='font-weight-bold'>
+                        count
+                        <span class="badge badge-info" id="sequence-count"></span>
+                    </h6>
+                    <h6 class='font-weight-bold'>
+                        generated
+                        <span class="badge badge-info" id="generated-count">0</span>
+                    </h6>
                 </div>
                 <button id="filter-button" type="submit" class="btn btn-info">Filter</button>
             </div>

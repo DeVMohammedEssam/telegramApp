@@ -6,6 +6,7 @@ const {
   sendMessage,
   getFilterCount,
   getAnalysis,
+  getRangeCount,
 } = require("../controllers/service.controller");
 const { Api } = require("../services/gramjs");
 router.post("/generate-numbers", generateNumbers);
@@ -15,5 +16,6 @@ router.post("/filter-sequence", FilterSequence);
 router.post("/message", sendMessage);
 router.get("/get-filter-count", getFilterCount);
 router.get("/get-analysis", getAnalysis);
+router.get("/sequence-count", getRangeCount);
 
 module.exports = router;

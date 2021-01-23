@@ -21,5 +21,11 @@ window.onload = async function () {
         filterSelectBox.append(optionElement);
       });
     }
+
+    // on selected sequence change
+    filterSelectBox.onchange = async function (e) {
+      const { count } = await getRangeNumbersCount(e.target.value);
+      document.getElementById("sequence-count").textContent = count;
+    };
   }
 };

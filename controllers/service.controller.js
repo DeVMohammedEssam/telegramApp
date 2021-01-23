@@ -84,7 +84,11 @@ const getGeneratedNumbers = async (req, res) => {
 const FilterSequence = async (req, res) => {
   try {
     const { sequenceId } = req.body;
-    const numbers = await GeneratedNumber.findOne({ _id: sequenceId });
+    const numbers = await GeneratedNumber.findOneAndUpdate(
+      { _id: sequenceId },
+      { isUsed: true },
+      { new: false }
+    );
     //     "staticPart": "201011",
     //     "from": "800000",
     //     "to": "900000",
@@ -108,9 +112,8 @@ const FilterSequence = async (req, res) => {
         wasOnline,
         phone,
       }));
-      console.log("result", result);
       const insertedUsers = await User.insertMany(users);
-      console.log(insertedUsers);
+
       return res.json({ userCount: insertedUsers.length });
     });
 
@@ -162,6 +165,16 @@ const getAnalysis = async (req, res) => {
     res.json({ error });
   }
 };
+
+const getRangeCount = async (req, res) => {
+  try {
+    const { id } = req.query;
+    const number = await GeneratedNumber.findById(id);
+    res.json({ count: number.count });
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 module.exports = {
   generateNumbers,
   getGeneratedNumbers,
@@ -169,4 +182,5 @@ module.exports = {
   sendMessage,
   getFilterCount,
   getAnalysis,
+  getRangeCount,
 };
