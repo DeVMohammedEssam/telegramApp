@@ -16,7 +16,11 @@ const {
   LocalStorageSession,
   Api,
 } = require("../services/gramjs");
+<<<<<<< HEAD
 const User = require("../models/User");
+=======
+const { Telegram } = require("../utils/Telegram");
+>>>>>>> 8e17b0b7689db57dafc2a62465354a52d77c2d58
 let transformNumber = (number) => {
   //011x -> 3
   let firstXIndex = number.indexOf("x");
@@ -54,12 +58,8 @@ let getStaticDynamicNumberRange = (from, to) => {
   };
 };
 
-let filterBulkOfNumbers = async (numbers, token, hash, source = 0) => {
-  let internalEvent = new EventEmitter();
-  internalEvent.emit("filterBulkOfNumbersStart", new Date());
-  let now = new Date();
-  let intervalCheckSuccess;
 
+<<<<<<< HEAD
   if (numbers.length == 0) {
     return [];
   }
@@ -166,6 +166,8 @@ let filterTelegramNumbers = async (data, tokens, i = 0, hash) => {
   //await wait(0)
   filterTelegramNumbers({ ...data, from: numberCounter }, tokens, ++i, hash);
 };
+=======
+>>>>>>> 8e17b0b7689db57dafc2a62465354a52d77c2d58
 const generateNumbers = async (req, res, err) => {
   const { from, to } = req.body;
   const data = getStaticDynamicNumberRange(from, to);
@@ -206,6 +208,7 @@ const FilterSequence = async (req, res) => {
     //      "noTo":to
     // }
     const tokens = await Tokens.find({});
+<<<<<<< HEAD
 
     filterTelegramNumbers(
       numbers._doc,
@@ -233,6 +236,19 @@ const FilterSequence = async (req, res) => {
       // Save DB using insertMany
       // { id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }
     });
+=======
+    const telegram=new Telegram()
+    telegram.filterTelegramNumbers(numbers._doc,tokens.map((token)=>token.token),0,cuid())
+    telegram.on("data",({result})=>{
+       console.log("==================",result)
+    //   //TODO: 
+    //   //DATA -> [{ id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }]
+    //   // Save DB using insertMany
+    //  // { id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }
+     
+    })
+
+>>>>>>> 8e17b0b7689db57dafc2a62465354a52d77c2d58
     if (!sequenceId) res.sendStatus(400);
 
     res.json({
