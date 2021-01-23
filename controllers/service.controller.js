@@ -6,10 +6,14 @@ let { wait } = require("../utils/timers.js");
 let cuid = require("cuid");
 const { StringSession } = require("../services/gramjs").sessions;
 let event = EventEmitter;
-const apiId = 79865;
-const apiHash = "d4e5e5a9635854cf8a807297da389d75";
 
-const { TelegramClient, tl, utils, LocalStorageSession, Api } = require("../services/gramjs");
+const {
+  TelegramClient,
+  tl,
+  utils,
+  LocalStorageSession,
+  Api,
+} = require("../services/gramjs");
 const User = require("../models/User");
 const { Telegram } = require("../utils/Telegram");
 let transformNumber = (number) => {
@@ -18,7 +22,10 @@ let transformNumber = (number) => {
   //011x-> 011
   let numbersBeforeX = number.slice(0, firstXIndex);
   //011x-> x1
-  let firstNumber = numbersBeforeX.slice(numbersBeforeX.length - 1, numbersBeforeX.length);
+  let firstNumber = numbersBeforeX.slice(
+    numbersBeforeX.length - 1,
+    numbersBeforeX.length
+  );
   //011x-> x
   let xChars = number.slice(firstXIndex, number.length);
   //011x-> 10
@@ -54,7 +61,9 @@ const generateNumbers = async (req, res, err) => {
     numberTo: to,
   });
   if (isDuplicate) {
-    return res.status(400).json({ message: "this sequence has already been generated." });
+    return res
+      .status(400)
+      .json({ message: "this sequence has already been generated." });
   }
   const newNumber = await new GeneratedNumber({
     numberFrom: from,
@@ -94,31 +103,23 @@ const FilterSequence = async (req, res) => {
     );
 
     telegram.on("data", async ({ result }) => {
-      try {
-        const users = result.map(({ id, wasOnline, phone }) => ({
-          telegramId: id,
-          wasOnline,
-          phone,
-        }));
-        const insertedUsers = await new User.insertMany(users);
-        console.log("inserted users", insertedUsers);
-        return res.sendStatus(200);
-      } catch (error) {
-        console.log(error);
-        return res.json({ error: error.message });
-      }
-      //   //TODO:
-      //   //DATA -> [{ id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }]
-      //   // Save DB using insertMany
-      //  // { id: 1458162226, wasOnline: 1611000837000, phone: '201100720374' }
+      const users = result.map(({ id, wasOnline, phone }) => ({
+        telegramId: id,
+        wasOnline,
+        phone,
+      }));
+      console.log("result", result);
+      const insertedUsers = await User.insertMany(users);
+      console.log(insertedUsers);
+      return res.json({ userCount: insertedUsers.length });
     });
 
-    if (!sequenceId) res.sendStatus(400);
+    /*   if (!sequenceId) res.sendStatus(400);
 
     return res.json({
       sequenceId,
       totalTelegramUsers,
-    });
+    }); */
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: error.message });

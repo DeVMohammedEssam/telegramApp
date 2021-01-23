@@ -56,9 +56,15 @@ const filterSequence = async (e) => {
   e.preventDefault();
   const sequenceId = document.getElementById("filtration_select").value;
   try {
+    const filterBtn = document.getElementById("filter-button");
+    filterBtn.textContent = "Filtering...";
+    filterBtn.disabled = true;
     const { data } = await axios.post("/api/service/filter-sequence", {
       sequenceId,
     });
+
+    filterBtn.textContent = "Filter";
+    filterBtn.disabled = false;
     console.log(data);
   } catch (error) {
     alert(error.message);
